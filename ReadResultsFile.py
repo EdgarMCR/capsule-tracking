@@ -1144,7 +1144,7 @@ class ResultsClass:
 
         xmin, xmax = plt.xlim()
 #        ax2.set_xlim([xmin, xmax*1.05])
-        plt.xlim([xmin, xmax*1.05])
+        plt.xlim([0.9*xmin, xmax*1.05])
         xmin, xmax = plt.xlim()
 
         ax2.xaxis.grid(True, color='#D0D0D0')
@@ -1181,7 +1181,7 @@ class ResultsClass:
 
         ax3 = ax2.twinx()
         ax3.errorbar(self.volumFluxesList, self.aveRelaxationDistance/self.pixelsPmm, yerr=self.aveRelaxationDistanceSTD/self.pixelsPmm, linestyle='None', marker='s', color = c[3], markersize=5)#, label='Max Taylor Parameter')
-        ax3.plot(self.volumFlux, self.relaxationDistance/self.pixelsPmm, linestyle='None', marker='s', color = c[2], markersize=2)#, label='Max Taylor Parameter')
+#        ax3.plot(self.volumFlux, self.relaxationDistance/self.pixelsPmm, linestyle='None', marker='s', color = c[2], markersize=2)#, label='Max Taylor Parameter')
         ax3.set_ylabel("Relaxation Distance [mm]")
         ax3.spines['right'].set_color(c[3])
         ax3.yaxis.label.set_color(c[3])        
