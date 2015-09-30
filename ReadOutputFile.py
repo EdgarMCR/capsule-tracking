@@ -11,7 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import platform
-import track_capsule_TJ_v0p12 as tr
+import track_capsule_TJ as tr
 import cv2
 import os
 import sys
@@ -579,13 +579,14 @@ def rerunWithOldParameters(directory,centerline=None, width=None, pPmm=None, geo
 #            print('FPS=%d' %FPS)
             
             pathFolder=directory  + entriesLine[0].strip() + dSlash
-      
+            
             #find index information
             if entriesLine[5].strip() == '-1':
                 Index=None
             else:
                 Index=[int(entriesLine[4]),int(entriesLine[5]),int(entriesLine[6]),int(entriesLine[7])]
             
+            ignorelast=None
             if readP and len((entriesLine)) ==14: #old parameter file with only three entries in geoTJ object
                 centerline = float(entriesLine[8].strip())
                 width = float(entriesLine[9].strip())
@@ -599,12 +600,8 @@ def rerunWithOldParameters(directory,centerline=None, width=None, pPmm=None, geo
                 pPmm = float(entriesLine[10].strip())
                 geoTJ = [float(entriesLine[11].strip()), float(entriesLine[12].strip()), float(entriesLine[13].strip()), float(entriesLine[14].strip())]
                 
-                if len((entriesLine)) == 15:
-                    ignorelast=None
-                else:
-                    if float(entriesLine[15].strip()) == 0 :
-                        ignorelast=None
-                    else:
+                if not len((entriesLine)) == 15:
+                    if float(entriesLine[15].strip()) != 0 :
                         ignorelast=float(entriesLine[15].strip())
             
 #            analyisTwoCapsules(path,centerline, width, pPmm, FPS=64, Index=None, borderSize=10, debugInfo=True, closeAfterPlotting=False, geoCutOff=[0,0,0], plot=True)
@@ -1533,9 +1530,10 @@ def findSpeedGradient(path,centerline, widthChannel, pPmm, FPS=64, Index=None, U
     #==========================================================================
     #Measure Relaxation Time of Capsule after T-Junction    
     #==========================================================================
-    framesToSS, distanceToSSPixels, _, _ =  findSymmetryByCentreline(path=path, geoTJ=geoCutOff, centroidAndWidth=[centroid_x, centroid_y, width], plot=True, show=True, show2=False, ignorlast=ignorlastSym)
+    framesToSS, distanceToSSPixels, indexMaxWidth, indexSS =  findSymmetryByCentreline(path=path, geoTJ=geoCutOff, centroidAndWidth=[centroid_x, centroid_y, width], plot=True, show=True, show2=False, ignorlast=ignorlastSym)
     timeToSS = framesToSS / (FPS+0.0)
-    distanceToSS = distanceToSSPixels / (pPmm+0.0)        
+    distanceToSS = distanceToSSPixels / (pPmm+0.0)      
+    print('relxation time : %.2f s and distance %.2f mm, indexMaxWidht and SS are %d, %d' %(timeToSS, distanceToSS,indexMaxWidth, indexSS))
     
     #==========================================================================
     #Find volumn Flux
@@ -1796,18 +1794,18 @@ def runFunction():
 #    directory = 'M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\Capsule#1\\'
 #    folder =  'Batch040615-002-#1-1S-5kcSt-%dFPS-35mlPmin-8\\' %FPS
 
-    directory = 'M:\\EdgarHaener\\Capsules\\Batch120615-004\\T-Junction\\'
-    folder =  'Batch120615-001-#4-%dFPS-50mlPmin-7\\' %FPS
+    directory = 'M:\\EdgarHaener\\Capsules\\Batch260615-001\\T-Junction\\2015-07-01\\Batch260615-001-#17\\'
+    folder =  'Batch260615-001-#17-%dFPS-50mlPmin-1\\' %FPS
 
     path = directory + folder
 
 #    centerline, width, pPmm, geometryTJ = None, None, None, None
 #    directory = 'M:\\EdgarHaener\\Capsules\\GelBeads150715-1\\T-Junction\\2015-07-22\\GelBead150715-1-#4\\'; geometryTJ=[121, 535, 709] #GelBeads150715-1 
 #    directory = 'M:\\EdgarHaener\\Capsules\\GelBeads150730-1\\T-Junction\\2015-08-04\\GelBead150730-1-#1\\'; centerline, width, pPmm = 624.5, 175, 22.4; geometryTJ=[119, 537, 712] #GelBeads150730-1 #1
-#    centerline, width, pPmm = 646, 174, 22.3; geometryTJ=[114, 559,  733] #Batch260615-001 #17
+    centerline, width, pPmm = 646, 174, 22.3; geometryTJ=[28, 114, 559,  733] #Batch260615-001 #17
 #    centerline, width, pPmm = 635.5, 173, 22.2; geometryTJ=[38, 122, 549,  722] #Batch040615-002
 #    centerline, width, pPmm = 637, 175, 22.4; geometryTJ=[72, 159, 550,  725] #Batch120615-004 #4 15ml/min
-    centerline, width, pPmm = 637, 175, 22.4; geometryTJ=[35, 118, 549,  724] #Batch120615-004 #4 Other Runs
+#    centerline, width, pPmm = 637, 175, 22.4; geometryTJ=[35, 118, 549,  724] #Batch120615-004 #4 Other Runs
 #    centerline, width, pPmm = 631.5, 175, 22.4; geometryTJ=[158, 544,  719] #Batch170615-002 #5 5ml/min
 #    centerline, width, pPmm = 632, 176, 22.4; geometryTJ=[120, 543,  719] #Batch170615-002 #5 Other
 #    geometryTJ=[125, 544, 717] #Batch170615-002 #2
@@ -1818,12 +1816,12 @@ def runFunction():
 #    centerline, width, pPmm = 634.5, 165, 20.2; geometryTJ=[105, 552, 717] #Batch100815-001 #3 & #4
     
     ignoreLast=None
-    ignoreLast=25
+    ignoreLast=79
     pos=None
 #    centerline, width, pPmm, geometryTJ = None, None, None, None
 #    centerline, width, pPmm = None, None, None
 #    wholeRun(directory, centerline, width, pPmm, Index=None, UseEverySecond=False, geometryTJ=[160, 542, 718])
-    pos=[5,55, 140, 170]
+    pos=[5,45, 140, 160]
 #    pos=[10, 60, 160, 200]
 #    removeDuplicateLines(directory, 'T-Junction-Capsule#1_Results.txt')
 #    runOnDirectorySym(directory=directory, geoTJ=geometryTJ, plot=True)

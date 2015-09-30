@@ -160,16 +160,18 @@ def runOneFPS(parameters, FPS, twoCapsules=False, OpenCV3=True):
         del listFolders[indexDelet[i]]
         
     foldersThatWorked=[]
+#    print(listFolders)        
     for f in listFolders:
+#        print('fname = %s' %(f))
         sp1=f.find('FPS')
         sp2=f[:sp1].rfind('_')
         if sp2 == -1 or (len(f[:sp1]) - sp2 ) > 5:
             sp2=f[:sp1].rfind('-')
 #            print('entriesLine[0][sp2+1:sp1] = %s ' %entriesLine[0][sp2+1:sp1])
-        
+#            print('reached try statment')
         try:
             FPSString=int(f[sp2+1:sp1])  
-        
+#                print('got fps string: %s' %(FPSString))
             if FPSString != FPS:
                 continue
             

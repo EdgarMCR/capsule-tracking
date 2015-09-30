@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
 import numpy as np
-import track_capsule_TJ_v0p12 as tr
+import track_capsule_TJ as tr
 import os
 
 #import sys
@@ -8,10 +8,10 @@ import os
 
 
 #To run script on a file, change path and run     
-FPS=50
-directory = 'M:\\EdgarHaener\\Capsules\\Batch120615-004\\T-Junction\\'
-folder =  'Batch120615-001-#4-%dFPS-25mlPmin-1\\' %FPS
-path = directory + folder #Test2\\'
+#FPS=50
+#directory = 'M:\\EdgarHaener\\Capsules\\Batch120615-004\\T-Junction\\'
+#folder =  'Batch120615-001-#4-%dFPS-25mlPmin-1\\' %FPS
+#path = directory + folder #Test2\\'
 
 #FPS=30
 #directory = 'M:\\EdgarHaener\\Capsules\\Batch120615-004\\T-Junction\\'
@@ -20,10 +20,10 @@ path = directory + folder #Test2\\'
 
 
 
-#FPS=10
-#directory = 'M:\\EdgarHaener\\Capsules\\GelBeads150730-1\\T-Junction\\2015-08-04\\GelBead150730-1-#1\\'
-#folder =  'GelBead150730-1-#1-%dFPS-5mlPmin-1\\' %FPS
-#path = directory + folder #Test2\\'
+FPS=10
+directory = 'M:\\EdgarHaener\\Capsules\\Batch170615-002\\T-Junction\\2015-06-20\\Batch170615-002_#5\\'
+folder =  'Batch170615-002_#5_10FPS_5mlPmin-1\\' 
+path = directory + folder #Test2\\'
 
 #directory = '/home/magda/Edgar/Caspules/Batch260615--001/T-Junction/#17/'
 #folder = 'Batch260615-001-#17-100FPS-50mlPmin-1/Test/'
@@ -52,12 +52,14 @@ backPath = directory +'Background%dFPS.png' %FPS
 #a = tr.userInputClass(directory, folder, 4.5, 22.5, -0.3, FPS, 35, 120, 535, 711, backPath) #Batch270715-001-#5
 #a = tr.userInputClass(directory, folder, 3.7, 22.6, -0.3, FPS, 33, 119, 540, 716, backPath) #Batch100815-001-#8
 #a = tr.userInputClass(directory, folder, 3.7, 20.2, -0.3, FPS, 23, 105, 550, 716, backPath) #Batch100815-001-#6-7
-a = tr.userInputClass(directory, folder, 3.8, 22.3, -0.3, FPS, 28, 114, 559, 733, backPath) #Batch260615-001-#17
-
+#a = tr.userInputClass(directory, folder, 3.8, 22.3, -0.3, FPS, 28, 114, 559, 733, backPath) #Batch260615-001-#17
+#a = tr.userInputClass(directory, folder, 3.2, 22.4, -0.3, FPS, 34, 120, 544, 719, backPath) #Batch170615-002-#5 all but 5ml/min
+a = tr.userInputClass(directory, folder, 3.2, 22.4, -0.3, 10, 73, 160, 544, 719, backPath) #Batch170615-002-#5 5ml/min
+ 
 #tr.find_max_extend(path, d0=3.7, pPmm=22.3, background=backPath, rotate=-0.3, plot=False, threshold=130, printDebugInfo=False, denoising = False, geomTJ=[25, 121, 535, 709])
 #tr.runOneFPS(directory, d0=3.7,  pPmm=22.3, FPS=70, rotateImages=-0.3, threshold=130, background=backPath)
 #tr.runScript(parameterClass=a, plot=False, debugInfo=False, twoCapsules=False, OpenCV3=False)
-tr.runOneFPS(parameters=a, FPS=50, twoCapsules=False, OpenCV3=False)
+tr.runOneFPS(parameters=a, FPS=10, twoCapsules=False, OpenCV3=False)
 
 
 #fpss=[40, 60, 70, 100, 120, 140]

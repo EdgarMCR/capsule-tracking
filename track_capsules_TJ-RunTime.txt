@@ -1794,3 +1794,8 @@
 2183.099610 	2015-09-29 20:04:27 	M:\EdgarHaener\Capsules\Batch170615-002\T-Junction\2015-06-22\Batch170615-002_#2\Batch170615-002-#2-140FPS-70mlPmin-2\ 	True 
 1638.563581 	2015-09-29 20:31:45 	M:\EdgarHaener\Capsules\Batch170615-002\T-Junction\2015-06-22\Batch170615-002_#2\Batch170615-002-#2-140FPS-70mlPmin-1\ 	True 
 2675.234528 	2015-09-29 21:16:21 	M:\EdgarHaener\Capsules\Batch170615-002\T-Junction\2015-06-22\Batch170615-002_#2\Batch170615-002-#2-140FPS-70mlPmin-4\ 	True 
+69.716939 	2015-09-30 18:15:53 	M:\EdgarHaener\Capsules\Batch170615-002\T-Junction\2015-06-20\Batch170615-002_#5\Batch170615-002_#5_10FPS_5mlPmin-1\ 	True 
+86.314231 	2015-09-30 18:17:19 	M:\EdgarHaener\Capsules\Batch170615-002\T-Junction\2015-06-20\Batch170615-002_#5\Batch170615-002_#5_10FPS_5mlPmin-5\ 	True 
+90.398236 	2015-09-30 18:18:50 	M:\EdgarHaener\Capsules\Batch170615-002\T-Junction\2015-06-20\Batch170615-002_#5\Batch170615-002_#5_10FPS_5mlPmin-2\ 	True 
+148.849897 	2015-09-30 18:21:19 	M:\EdgarHaener\Capsules\Batch170615-002\T-Junction\2015-06-20\Batch170615-002_#5\Batch170615-002_#5_10FPS_5mlPmin-3\ 	True 
+142.962642 	2015-09-30 18:23:42 	M:\EdgarHaener\Capsules\Batch170615-002\T-Junction\2015-06-20\Batch170615-002_#5\Batch170615-002_#5_10FPS_5mlPmin-4\ 	True 

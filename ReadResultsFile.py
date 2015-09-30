@@ -1153,7 +1153,7 @@ class ResultsClass:
         plt.title("Relaxation Time and Distance -  " +BatchID, y=1.01)
         plt.plot([],[],'o',color=c[0] ,)
         plt.plot([],[],'s',color=c[3])
-        plt.legend(['Relaxation Time', 'Relaxation Distance'], loc='best', fontsize=6) 
+        plt.legend([ 'Relaxation Distance', 'Relaxation Time'], loc='best', fontsize=6) 
         
 #        plt.legend(loc='best', fontsize=6)
         fig.tight_layout()
@@ -1200,7 +1200,7 @@ class ResultsClass:
         plt.title("Relaxation Time and Distance -  " +BatchID, y=1.01)
         plt.plot([],[],'o',color=c[0] ,)
         plt.plot([],[],'s',color=c[3])
-        plt.legend(['Relaxation Time', 'Relaxation Distance'], loc='best', fontsize=6) 
+        plt.legend(['Relaxation Distance', 'Relaxation Time'], loc='best', fontsize=6) 
         
 #        plt.legend(loc='best', fontsize=6)
         fig.tight_layout()
