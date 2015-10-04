@@ -503,7 +503,7 @@ def runTwoCapsulesForDirectory(directory, rerun = False, centerline=None, width=
         for f in foldersThatWorked:
             print(f)
     
-def rerunWithOldParameters(directory,centerline=None, width=None, pPmm=None, geoTJ=None, plot=False):    
+def rerunWithOldParameters(directory, centerline=None, width=None, pPmm=None, geoTJ=None, plot=False):    
     #TODO: use os module instead
     if platform.system() == 'Linux':
         dSlash='/'
@@ -589,7 +589,7 @@ def rerunWithOldParameters(directory,centerline=None, width=None, pPmm=None, geo
                 Index=[int(entriesLine[4]),int(entriesLine[5]),int(entriesLine[6]),int(entriesLine[7])]
             
             ignorelast=None
-            print('len((entriesLine)) = %d' %len((entriesLine)))
+#            print('readP = %s , len((entriesLine)) = %d' %(readP, len((entriesLine))))
             if readP and len((entriesLine)) ==14: #old parameter file with only three entries in geoTJ object
                 centerline = float(entriesLine[8].strip())
                 width = float(entriesLine[9].strip())
@@ -603,17 +603,14 @@ def rerunWithOldParameters(directory,centerline=None, width=None, pPmm=None, geo
                 pPmm = float(entriesLine[10].strip())
                 geoTJ = [float(entriesLine[11].strip()), float(entriesLine[12].strip()), float(entriesLine[13].strip()), float(entriesLine[14].strip())]
                 
-                
+#                print("len((entriesLine)) == 15 = %s" %(len((entriesLine)) == 15))
                 if not len((entriesLine)) == 15:
                     print(float(entriesLine[15].strip()))
                     if float(entriesLine[15].strip()) != 0 :
                         ignorelast=float(entriesLine[15].strip())
-            if not ignorelast:
-                print('ignorelast = None')
-            else:
-                print('ignorelast = %d' %ignorelast)
+                        
 #            analyisTwoCapsules(path,centerline, width, pPmm, FPS=64, Index=None, borderSize=10, debugInfo=True, closeAfterPlotting=False, geoCutOff=[0,0,0], plot=True)
-#            findSpeedGradient(pathFolder,centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, Index=Index, UseEverySecond=False, borderSize=10, closeAfterPlotting=True, geoCutOff=geoTJ, plot=plot, ignorlastSym=ignorelast)
+            findSpeedGradient(pathFolder,centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, Index=Index, UseEverySecond=False, borderSize=10, closeAfterPlotting=True, geoCutOff=geoTJ, plot=plot, ignorlastSym=ignorelast)
             plt.close('all')
 
            
@@ -1843,7 +1840,7 @@ def dirWalk(topdir, copyDest, string, filetype):
 
 def runWithOldPos(directory, path, centerline, widthChannel, pPmm, FPS, UseEverySecond=False, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=None, Indexi=None, ignorlastSymi=None):
     '''
-    Load index information from parameter file
+    Load index information from parameter file if not provided
     '''
     ss1=directory.rfind(os.sep, 1,-1)
 #    print('ss1 = %s \t %s' %(ss1, directory[:ss1]))
@@ -1885,10 +1882,9 @@ def runWithOldPos(directory, path, centerline, widthChannel, pPmm, FPS, UseEvery
                     Index = Indexi
                     
                 if ignorlastSymi == None:
+                    ignorlastSym = None
                     if len(entriesLine) >= 16:
-                        if entriesLine[15].strip() == '0':
-                            ignorlastSym = None
-                        else:
+                        if not entriesLine[15].strip() == '0':
                             ignorlastSym =entriesLine[15].strip()
                 else:
                     ignorlastSym = ignorlastSymi
@@ -1905,14 +1901,14 @@ def runFunction():
 #    directory = 'M:\\EdgarHaener\\Capsules\\Batch170615-002\\T-Junction\\2015-06-22\\Batch170615-002_#2\\'
 #    path=directory + 'Batch170615-002-#2-100FPS-50mlPmin-4\\'
     
-    FPS=70
+    FPS=140
     
 #    directory = 'M:\\EdgarHaener\\Capsules\\Batch270715-001\\T-Junction\\2015-08-04\\Batch270715-001-#5\\'
 #    folder =  'Batch270715-001-#5-%dFPS-15mlPmin-4\\' %FPS
 #    directory = 'M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\'
 
     directory = 'M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\Capsule#1\\'
-    folder =  'Batch040615-002-#1-1S-5kcSt-%dFPS-35mlPmin-8\\' %FPS
+    folder =  'Batch040615-002-#1-1S-5kcSt-%dFPS-70mlPmin-4\\' %FPS
 
 #    directory = 'M:\\EdgarHaener\\Capsules\\Batch170615-002\\T-Junction\\2015-06-20\\Batch170615-002_#5\\'
 #    folder =  'Batch170615-002_#5_%dFPS_70mlPmin-1\\' %FPS
@@ -1944,16 +1940,15 @@ def runFunction():
 #    ignoreLast=25
     pos=None
 #    centerline, width, pPmm, geometryTJ = None, None, None, None
-#    centerline, width, pPmm = None, None, None
 #    wholeRun(directory, centerline, width, pPmm, Index=None, UseEverySecond=False, geometryTJ=[160, 542, 718])
-#    pos=[10,35, 120, 150]
+#    pos=[5,25, 100, 140]
 #    pos=[10, 60, 180, 200]
 #    removeDuplicateLines(directory, 'T-Junction-Capsule#1_Results.txt')
 #    runOnDirectorySym(directory=directory, geoTJ=geometryTJ, plot=True)
 #    findSpeedGradient(path, centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, Index=pos, UseEverySecond=False, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=geometryTJ, ignorlastSym=ignoreLast)
-#    runWithOldPos(directory, path, centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, UseEverySecond=False, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=geometryTJ, Index=pos,  ignorlastSym=ignoreLast)
+    runWithOldPos(directory, path, centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, UseEverySecond=False, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=geometryTJ, Indexi=pos,  ignorlastSymi=ignoreLast)
 #    plotCentorid(path, borderSize=0, rotate=-0.3, numberToPlot=10)
-    rerunWithOldParameters(directory,centerline, width, pPmm, geoTJ=geometryTJ, plot=False)
+#    centerline, width, pPmm = None, None, None; rerunWithOldParameters(directory,centerline, width, pPmm, geoTJ=geometryTJ, plot=True)
 #    analyisTwoCapsules(path, centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, Index=pos, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=geometryTJ)
 #    runTwoCapsulesForDirectory(directory, rerun = False, centerline=centerline, width=width, pPmm=pPmm, geoTJ=geometryTJ)
 #    plotExtend(path)
