@@ -231,7 +231,9 @@ def findSymmetryByCentreline(path, geoTJ, centroidAndWidth=None, plot=False, sho
             plt.show()
         else:
             d1 = path[:-1].rfind(os.sep)
-            plt.savefig(path+path[d1+1:-1] +'_Ypos_DaugtherChannel.jpg', dpi=600)
+            savepath = path+path[d1+1:-1] +'_Ypos_DaugtherChannel.jpg'
+#            print(savepath)
+            plt.savefig(savepath, dpi=600)
             plt.close(fig)
         
         fig = plt.figure(figsize=(8, 6), dpi=200,); ax = fig.add_subplot(111)
@@ -501,7 +503,7 @@ def runTwoCapsulesForDirectory(directory, rerun = False, centerline=None, width=
         for f in foldersThatWorked:
             print(f)
     
-def rerunWithOldParameters(directory,centerline=None, width=None, pPmm=None, geoTJ=None):    
+def rerunWithOldParameters(directory,centerline=None, width=None, pPmm=None, geoTJ=None, plot=False):    
     #TODO: use os module instead
     if platform.system() == 'Linux':
         dSlash='/'
@@ -562,7 +564,7 @@ def rerunWithOldParameters(directory,centerline=None, width=None, pPmm=None, geo
     for line in lines:
         entriesLine=line.split('\t')
         if entriesLine[0].strip() != 'fileID': #check its not the header         
-            entriesLine[-1] = entriesLine[-1][:-2].strip() #what am I doing here?
+            entriesLine[-1] = entriesLine[-1][:-1].strip() #what am I doing here?
             while '' in entriesLine:
                 entriesLine.remove('')
             print('')
@@ -587,6 +589,7 @@ def rerunWithOldParameters(directory,centerline=None, width=None, pPmm=None, geo
                 Index=[int(entriesLine[4]),int(entriesLine[5]),int(entriesLine[6]),int(entriesLine[7])]
             
             ignorelast=None
+            print('len((entriesLine)) = %d' %len((entriesLine)))
             if readP and len((entriesLine)) ==14: #old parameter file with only three entries in geoTJ object
                 centerline = float(entriesLine[8].strip())
                 width = float(entriesLine[9].strip())
@@ -600,12 +603,17 @@ def rerunWithOldParameters(directory,centerline=None, width=None, pPmm=None, geo
                 pPmm = float(entriesLine[10].strip())
                 geoTJ = [float(entriesLine[11].strip()), float(entriesLine[12].strip()), float(entriesLine[13].strip()), float(entriesLine[14].strip())]
                 
+                
                 if not len((entriesLine)) == 15:
+                    print(float(entriesLine[15].strip()))
                     if float(entriesLine[15].strip()) != 0 :
                         ignorelast=float(entriesLine[15].strip())
-            
+            if not ignorelast:
+                print('ignorelast = None')
+            else:
+                print('ignorelast = %d' %ignorelast)
 #            analyisTwoCapsules(path,centerline, width, pPmm, FPS=64, Index=None, borderSize=10, debugInfo=True, closeAfterPlotting=False, geoCutOff=[0,0,0], plot=True)
-            findSpeedGradient(pathFolder,centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, Index=Index, UseEverySecond=False, borderSize=10, closeAfterPlotting=True, geoCutOff=geoTJ, plot=False, ignorlastSym=ignorelast)
+#            findSpeedGradient(pathFolder,centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, Index=Index, UseEverySecond=False, borderSize=10, closeAfterPlotting=True, geoCutOff=geoTJ, plot=plot, ignorlastSym=ignorelast)
             plt.close('all')
 
            
@@ -1250,7 +1258,7 @@ def findSpeedGradient(path,centerline, widthChannel, pPmm, FPS=64, Index=None, U
         print(Index)
     
     fileID=tr.find_batchName(path);
-    centroid_x, centroid_y, v_x, v_y, area, width, d12, _ = readResultsFile(path)  
+    centroid_x, centroid_y, v_x, v_y, area, width, d12, height = readResultsFile(path)  
     numOfLines=len(centroid_x)           
     
     #Running average
@@ -1358,8 +1366,8 @@ def findSpeedGradient(path,centerline, widthChannel, pPmm, FPS=64, Index=None, U
         ax.text(l_dx/2.2, min_dx[0]/2, s, fontsize=15)
         ax.text(l_dx/2.2, min_dx[0]/1.4, s1, fontsize=12)
         ax.text(l_dx/2.2, min_dx[0]/1.05, s2, fontsize=12)
-        
-    #    plt.ylim([-50,50])
+#        print('min_dx = %.1f max_dx = %.1f' %(min_dx,max_dx))
+        plt.ylim([min_dx[0]*1.2,max_dx[0]*1.2])
         
         plt.title("Gradient of the Speed" +" " + fileID)
         plt.xlabel("dx")
@@ -1530,7 +1538,12 @@ def findSpeedGradient(path,centerline, widthChannel, pPmm, FPS=64, Index=None, U
     #==========================================================================
     #Measure Relaxation Time of Capsule after T-Junction    
     #==========================================================================
-    framesToSS, distanceToSSPixels, indexMaxWidth, indexSS =  findSymmetryByCentreline(path=path, geoTJ=geoCutOff, centroidAndWidth=[centroid_x, centroid_y, width], plot=True, show=True, show2=False, ignorlast=ignorlastSym)
+    if closeAfterPlotting:
+        s=False
+    else:
+        s=True
+        
+    framesToSS, distanceToSSPixels, indexMaxWidth, indexSS =  findSymmetryByCentreline(path=path, geoTJ=geoCutOff, centroidAndWidth=[centroid_x, centroid_y, width], plot=plot, show=s, show2=False, ignorlast=ignorlastSym)
     timeToSS = framesToSS / (FPS+0.0)
     distanceToSS = distanceToSSPixels / (pPmm+0.0)      
     print('relxation time : %.2f s and distance %.2f mm, indexMaxWidht and SS are %d, %d' %(timeToSS, distanceToSS,indexMaxWidth, indexSS))
@@ -1585,7 +1598,7 @@ def findSpeedGradient(path,centerline, widthChannel, pPmm, FPS=64, Index=None, U
     import os.path
     if not os.path.isfile(pathData): #check whether the file for this run has been started
         fileData = open(pathData, 'w')
-        fileData.write('Vol Flux \t\t\t\t\t\tname \t min speed \t ave speed 1 \t ave speed 2 \t time acceleration  \ \t Off-centre \t turned \t time geometric \t max width \t max d12 \tdifferenceTimeStart \tdifferenceTimeEnd \td12 Main \t d12 Daugther \ttime to Steady State (seconds) \tdistance to Steady State(pixels)\n')
+        fileData.write('Vol Flux \t\t\t\t\t\tname \t min speed \t ave speed 1 \t ave speed 2 \t time acceleration  \ \t Off-centre \t turned \t time geometric \t max width \t max d12 \tdifferenceTimeStart \tdifferenceTimeEnd \td12 Main \t d12 Daugther \ttime to Steady State (seconds) \tdistance to Steady State(pixels) \tmax acceleration \t min acceleration \n')
         fileData.close()
     if not os.path.isfile(pathParameters):
         fileParameters = open(pathParameters, 'w')
@@ -1593,7 +1606,7 @@ def findSpeedGradient(path,centerline, widthChannel, pPmm, FPS=64, Index=None, U
         fileParameters.close()
     
     #check whether there is alread a value for this fileID   
-    stringWRslt = '%.1f \t %s \t \t \t %.2e \t %.2e \t %.2e  \t %.2f \t %.2f \t %s \t %.3e \t %d \t %.3f \t%.3e \t%.3e \t%.3f \t%.3f \t%.3f \t%.3f\n' %(volFlux, fileID, minSpeed, firstSpeed,  secondSpeed, timeInTJunction, differenceX, turn, timeTJ, maxwidth, maxd12, differenceTimeStart, differenceTimeEnd, d12Main, d12Daugther, timeToSS, distanceToSSPixels)
+    stringWRslt = '%.1f \t %s \t \t \t %.2e \t %.2e \t %.2e  \t %.2f \t %.2f \t %s \t %.3e \t %d \t %.3f \t%.3e \t%.3e \t%.3f \t%.3f \t%.3f \t%.3f \t%.3f \t%.3f\n' %(volFlux, fileID, minSpeed, firstSpeed,  secondSpeed, timeInTJunction, differenceX, turn, timeTJ, maxwidth, maxd12, differenceTimeStart, differenceTimeEnd, d12Main, d12Daugther, timeToSS, distanceToSSPixels, max_dx[0], min_dx[0])
     if fileID in open(pathData).read():
          #File 1: Data
         f = open(pathData,"r")
@@ -1688,6 +1701,101 @@ def removeDuplicateLines(directory, filename):
     fileD.close()            
     os.remove(backup) #delete backup copy
     print('%d duplicates removed' %duplicates)
+    
+def findMinimumDistanceToWall(centroid_y, v_x, acc_x, height, geoTJ, Index=None, path='', plot=False, show=False):
+    '''
+    Find the minimum distance between capsule and wall.
+    
+    Approximate capsule upper boundary as centroid plus half height.
+    
+    -Returns-
+    mind        minimum distance to channel wall
+    mindIndex   frame on which this minimum distance occured
+    '''
+    IGNORE = 0.2
+    assert(len(geoTJ) == 4)
+    upperBoundary = geoTJ[0]
+    centroid_y = np.array(centroid_y); height = np.array(height)
+
+    capsuleTop = centroid_y - (height.flatten()/2.0)
+    distance= capsuleTop - upperBoundary
+    
+    #find minimum
+    leng = len(distance)
+    if Index == None:
+        dShort= distance[int(leng*IGNORE) : int(leng*(1-IGNORE))]
+        mind=np.min(dShort)            
+        mindIndex = int(leng*IGNORE) +np.argmin(dShort)
+        ifirst = int(leng*IGNORE)
+    else:
+        dShort= distance[Index[1] : Index[2]]
+        mind=np.min(dShort)            
+        mindIndex = Index[1] +np.argmin(dShort)
+        ifirst = Index[1]
+        
+    
+    if plot:
+        s="Min distance = %.1f at index %d" %(mind, mindIndex)
+        
+        fig = plt.figure(figsize=(8, 6), dpi=200,); ax = fig.add_subplot(111)
+        plt.plot(np.arange(len(centroid_y)), distance, 'sb', linestyle='None', label='Minimum Distance')
+        x = np.arange(ifirst, len(dShort)+ifirst)
+#        print('len(x) = %d, len(y) = %d' %(len(x), len(dShort)))
+        plt.plot(x, dShort, 'or', linestyle='None', markersize=2, label='Minimum Distance Short')
+        
+        plt.xlabel('Picture #')
+        plt.ylabel('Min Distance [pixels]')
+        plt.legend(loc='best')
+        plt.title('Distance to top of junction')
+        plt.grid()
+        ax.text(0.05, 0.2, s, fontsize=12, horizontalalignment='left', verticalalignment='center', transform = ax.transAxes)
+        
+        d1 = path[:-1].rfind(os.sep)
+        plt.savefig(path+path[d1+1:-1] +'_Min_Distance.jpg', dpi=600)
+        
+        #temporary Check 
+        d2 = path[:d1-1].rfind(os.sep)
+        ndir = path[:d2] + os.sep + 'MinDistance' + os.sep
+        if not os.path.exists(ndir): os.makedirs(ndir)
+        plt.savefig(ndir+path[d1+1:-1] +'_Min_Distance.jpg', dpi=600)
+        
+        if show:
+            plt.show()
+        else:
+            plt.close(fig)
+            
+        fig = plt.figure(figsize=(8, 6), dpi=200,); ax = fig.add_subplot(111)
+        plt.plot(np.arange(len(v_x)), v_x, 'sb', linestyle='None', label='x-Velocity')
+        smooth_v_x = tr.smooth((v_x.flatten()),window_len=11,window='hanning')
+        plt.plot(np.arange(len(smooth_v_x)), smooth_v_x, 'or', linestyle='None', markersize=4, label='smoothed x-Velocity')
+        
+        plt.xlabel('Picture #')
+        plt.ylabel('x Velocity [pixels]')
+        plt.legend(loc='best')
+        plt.title('Velocity')
+        plt.grid()
+        plt.savefig(path+path[d1+1:-1] +'_x-velocity.jpg', dpi=600)
+        if show:
+            plt.show()
+        else:
+            plt.close(fig)
+            
+        fig = plt.figure(figsize=(8, 6), dpi=200,); ax = fig.add_subplot(111)
+        plt.plot(np.arange(len(acc_x)), acc_x, 'sb', linestyle='None', label='x-Acceleration')
+        smooth_acc_x = tr.smooth((acc_x.flatten()),window_len=11,window='hanning')
+        plt.plot(np.arange(len(smooth_acc_x)), smooth_acc_x, 'or', linestyle='None', markersize=4, label='smoothed x-Acceleration')
+        plt.xlabel('Picture #')
+        plt.ylabel('x acceleration [pixels/s^2]')
+        plt.legend(loc='best')
+        plt.title('Acceleration')
+        plt.grid()
+        plt.savefig(path+path[d1+1:-1] +'_x-acceleration.jpg', dpi=600)
+        if show:
+            plt.show()
+        else:
+            plt.close(fig)
+    
+    return mind, mindIndex
                 
 
 def wholeRun(directory, centerline, width, pPmm, Index=None, UseEverySecond=False, geometryTJ=None):
@@ -1726,18 +1834,17 @@ def dirWalk(topdir, copyDest, string, filetype):
     '''
     
     for dirName, subdirList, fileList in os.walk(topdir):
-#        print('Found directory: %s' % dirName)
+#        print('Found directory: %s' % dirName)dirWalk(topdir, copyDest, string, filetype)
         for fname in fileList:
             if string in fname and filetype in fname:
                 print(fname)
                 fileLoc = dirName + os.sep +  fname
                 shutil.copyfile(fileLoc, os.path.join(copyDest, fname))
 
-def runWithOldPos(directory, path, centerline, widthChannel, pPmm, FPS, UseEverySecond=False, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=None, ignorlastSym=None):
+def runWithOldPos(directory, path, centerline, widthChannel, pPmm, FPS, UseEverySecond=False, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=None, Indexi=None, ignorlastSymi=None):
     '''
     Load index information from parameter file
     '''
-    
     ss1=directory.rfind(os.sep, 1,-1)
 #    print('ss1 = %s \t %s' %(ss1, directory[:ss1]))
     ss2=directory.rfind(os.sep, 1,ss1)
@@ -1769,10 +1876,25 @@ def runWithOldPos(directory, path, centerline, widthChannel, pPmm, FPS, UseEvery
             #Check if this is correct line
             if fileID in entriesLine[0].strip():
                 #find index information
-                if entriesLine[5].strip() == '-1':
-                    Index=None
+                if Indexi == None:
+                    if entriesLine[5].strip() == '-1':
+                        Index=None
+                    else:
+                        Index=[int(entriesLine[4]),int(entriesLine[5]),int(entriesLine[6]),int(entriesLine[7])]
                 else:
-                    Index=[int(entriesLine[4]),int(entriesLine[5]),int(entriesLine[6]),int(entriesLine[7])]
+                    Index = Indexi
+                    
+                if ignorlastSymi == None:
+                    if len(entriesLine) >= 16:
+                        if entriesLine[15].strip() == '0':
+                            ignorlastSym = None
+                        else:
+                            ignorlastSym =entriesLine[15].strip()
+                else:
+                    ignorlastSym = ignorlastSymi
+                        
+                    
+                
     
                 findSpeedGradient(path,centerline=centerline, widthChannel=widthChannel, pPmm=pPmm, FPS=FPS, Index=Index, UseEverySecond=UseEverySecond, borderSize=borderSize, closeAfterPlotting= closeAfterPlotting, geoCutOff=geoCutOff, plot=True, ignorlastSym=ignorlastSym)
                 break;
@@ -1780,34 +1902,37 @@ def runWithOldPos(directory, path, centerline, widthChannel, pPmm, FPS, UseEvery
     
 def runFunction():
     plt.close("all")
-
-    
 #    directory = 'M:\\EdgarHaener\\Capsules\\Batch170615-002\\T-Junction\\2015-06-22\\Batch170615-002_#2\\'
 #    path=directory + 'Batch170615-002-#2-100FPS-50mlPmin-4\\'
     
-    FPS=100
+    FPS=70
     
 #    directory = 'M:\\EdgarHaener\\Capsules\\Batch270715-001\\T-Junction\\2015-08-04\\Batch270715-001-#5\\'
 #    folder =  'Batch270715-001-#5-%dFPS-15mlPmin-4\\' %FPS
 #    directory = 'M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\'
 
-#    directory = 'M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\Capsule#1\\'
-#    folder =  'Batch040615-002-#1-1S-5kcSt-%dFPS-35mlPmin-8\\' %FPS
+    directory = 'M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\Capsule#1\\'
+    folder =  'Batch040615-002-#1-1S-5kcSt-%dFPS-35mlPmin-8\\' %FPS
 
-    directory = 'M:\\EdgarHaener\\Capsules\\Batch260615-001\\T-Junction\\2015-07-01\\Batch260615-001-#17\\'
-    folder =  'Batch260615-001-#17-%dFPS-50mlPmin-1\\' %FPS
+#    directory = 'M:\\EdgarHaener\\Capsules\\Batch170615-002\\T-Junction\\2015-06-20\\Batch170615-002_#5\\'
+#    folder =  'Batch170615-002_#5_%dFPS_70mlPmin-1\\' %FPS
 
     path = directory + folder
 
 #    centerline, width, pPmm, geometryTJ = None, None, None, None
 #    directory = 'M:\\EdgarHaener\\Capsules\\GelBeads150715-1\\T-Junction\\2015-07-22\\GelBead150715-1-#4\\'; geometryTJ=[121, 535, 709] #GelBeads150715-1 
-#    directory = 'M:\\EdgarHaener\\Capsules\\GelBeads150730-1\\T-Junction\\2015-08-04\\GelBead150730-1-#1\\'; centerline, width, pPmm = 624.5, 175, 22.4; geometryTJ=[119, 537, 712] #GelBeads150730-1 #1
-    centerline, width, pPmm = 646, 174, 22.3; geometryTJ=[28, 114, 559,  733] #Batch260615-001 #17
-#    centerline, width, pPmm = 635.5, 173, 22.2; geometryTJ=[38, 122, 549,  722] #Batch040615-002
+#    centerline, width, pPmm = 622, 174, 22.3; directory = 'M:\\EdgarHaener\\Capsules\\GelBeads150715-1\\T-Junction\\2015-07-22\\GelBead150715-1-#4\\'; geometryTJ=[37, 121, 535, 709]; #GelBeads150715-1
+#    folder = 'GelBead150715-1-#4-%dFPS-70mlPmin-7\\' %FPS
+#    path=directory+folder
+#    directory = 'M:\\EdgarHaener\\Capsules\\GelBeads150730-1\\T-Junction\\2015-08-04\\GelBead150730-1-#1\\'; centerline, width, pPmm = 624.5, 175, 22.4; geometryTJ=[32, 119, 537, 712] #GelBeads150730-1 #11
+#    directory = '/mnt/MCND/EdgarHaener/Capsules/GelBeads150730-1/T-Junction/2015-08-04/GelBead150730-1-#1/'; 
+#    path = '/mnt/MCND/EdgarHaener/Capsules/GelBeads150730-1/T-Junction/2015-08-04/GelBead150730-1-#1/GelBead150730-1-#1-10FPS-5mlPmin-1' #GelBeads150730-1 #1
+#    centerline, width, pPmm = 646, 174, 22.3; geometryTJ=[28, 114, 559,  733] #Batch260615-001 #17
+    centerline, width, pPmm = 635.5, 173, 22.2; geometryTJ=[36, 122, 549,  722] #Batch040615-002
 #    centerline, width, pPmm = 637, 175, 22.4; geometryTJ=[72, 159, 550,  725] #Batch120615-004 #4 15ml/min
 #    centerline, width, pPmm = 637, 175, 22.4; geometryTJ=[35, 118, 549,  724] #Batch120615-004 #4 Other Runs
-#    centerline, width, pPmm = 631.5, 175, 22.4; geometryTJ=[158, 544,  719] #Batch170615-002 #5 5ml/min
-#    centerline, width, pPmm = 632, 176, 22.4; geometryTJ=[120, 543,  719] #Batch170615-002 #5 Other
+#    centerline, width, pPmm = 631.5, 175, 22.4; geometryTJ=[73, 158, 544,  719] #Batch170615-002 #5 5ml/min
+#    centerline, width, pPmm = 632, 176, 22.4; geometryTJ=[34, 120, 543,  719] #Batch170615-002 #5 Other
 #    geometryTJ=[125, 544, 717] #Batch170615-002 #2
 #    centerline, width, pPmm = 623, 176, 22.5; geometryTJ=[120, 535, 711] #Batch270715-001 #5
 
@@ -1816,29 +1941,33 @@ def runFunction():
 #    centerline, width, pPmm = 634.5, 165, 20.2; geometryTJ=[105, 552, 717] #Batch100815-001 #3 & #4
     
     ignoreLast=None
-    ignoreLast=79
+#    ignoreLast=25
     pos=None
 #    centerline, width, pPmm, geometryTJ = None, None, None, None
 #    centerline, width, pPmm = None, None, None
 #    wholeRun(directory, centerline, width, pPmm, Index=None, UseEverySecond=False, geometryTJ=[160, 542, 718])
-    pos=[5,45, 140, 160]
-#    pos=[10, 60, 160, 200]
+#    pos=[10,35, 120, 150]
+#    pos=[10, 60, 180, 200]
 #    removeDuplicateLines(directory, 'T-Junction-Capsule#1_Results.txt')
 #    runOnDirectorySym(directory=directory, geoTJ=geometryTJ, plot=True)
 #    findSpeedGradient(path, centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, Index=pos, UseEverySecond=False, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=geometryTJ, ignorlastSym=ignoreLast)
-    runWithOldPos(directory, path, centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, UseEverySecond=False, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=geometryTJ, ignorlastSym=ignoreLast)
+#    runWithOldPos(directory, path, centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, UseEverySecond=False, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=geometryTJ, Index=pos,  ignorlastSym=ignoreLast)
 #    plotCentorid(path, borderSize=0, rotate=-0.3, numberToPlot=10)
-#    rerunWithOldParameters(directory,centerline, width, pPmm, geoTJ=geometryTJ)
+    rerunWithOldParameters(directory,centerline, width, pPmm, geoTJ=geometryTJ, plot=False)
 #    analyisTwoCapsules(path, centerline=centerline, widthChannel=width, pPmm=pPmm, FPS=FPS, Index=pos, borderSize=10, debugInfo=True, closeAfterPlotting=False,  geoCutOff=geometryTJ)
 #    runTwoCapsulesForDirectory(directory, rerun = False, centerline=centerline, width=width, pPmm=pPmm, geoTJ=geometryTJ)
 #    plotExtend(path)
-#    dirWalk(topdir=directory, copyDest='M:\EdgarHaener\Capsules\Batch120615-004\Symmetry_T-J', string='Ypos_DaugtherChannel', filetype='.jpg')
+#    dirWalk(topdir=directory, copyDest='M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\Acceleration', string='GradientSpeed_Graph', filetype='.jpg')
     
-    geoTJ040615d002nr1 = [38, 122, 549, 722]
-    path="M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\Capsule#1\\Batch040615-002-#1-1S-5kcSt-10FPS-5mlPmin-1\\"
+#    geoTJ040615d002nr1 = [38, 122, 549, 722]
+#    path="M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\Capsule#1\\Batch040615-002-#1-1S-5kcSt-10FPS-5mlPmin-1\\"
 #    findSymmetryByCentreline(path, geoTJ=geoTJ040615d002nr1, plot=True, show=True)
-    directory="M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\Capsule#1\\"
+#    directory="M:\\EdgarHaener\\Capsules\\Batch040615-002\\T-Junction\\Capsule#1\\"
 #    runOnDirectorySym(directory, geoTJ=geoTJ040615d002nr1, geoTJ2=None, fpsSpecial=[])
+    
+#    centroid_x, centroid_y, v_x, v_y, area, width, d12, height = readResultsFile(path, second=False)
+#    isp_x, disp_y, vel_x, vel_y , speed, speed_ave, imageCounter, acceleration_x, acceleration_y, acceleration_mag = findAccelerationFromPosition(centroid_x, centroid_y, FPS)
+#    findMinimumDistanceToWall(centroid_y, vel_x, acceleration_x,height, geoTJ=geometryTJ, path=path, plot=True, show=True)
     
 if __name__ == '__main__':
     runFunction()

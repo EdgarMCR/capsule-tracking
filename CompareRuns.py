@@ -102,7 +102,9 @@ def plotRelaxationTime(listOfInstances, listOfNames, savepath=None, title  = '',
     ax2 = fig.add_subplot(111)
 
     for ii in range(len(listOfInstances)):
-       ax2.errorbar(listOfInstances[ii].volumFluxesList, listOfInstances[ii].aveRelaxationTime, yerr=listOfInstances[ii].aveRelaxationTimeSTD ,linestyle='None', marker=markers[ii], label=listOfNames[ii], color = c[ii],  markersize=6)#, label='Max Extension')
+        y = (np.array(listOfInstances[ii].aveRelaxationTime).flatten())
+        ystd = (np.array(listOfInstances[ii].aveRelaxationTimeSTD).flatten())
+        ax2.errorbar(listOfInstances[ii].volumFluxesList, y, yerr=ystd ,linestyle='None', marker=markers[ii], label=listOfNames[ii], color = c[ii],  markersize=6)#, label='Max Extension')
     ax2.set_xlabel("Volumn Flux [ml/min]")
     ax2.set_ylabel("Relaxation Time [s]")
     ax2.legend(loc='best', fontsize=6) 
@@ -122,6 +124,47 @@ def plotRelaxationTime(listOfInstances, listOfNames, savepath=None, title  = '',
     fig.tight_layout()
     if savepath  != None:
         plt.savefig(listOfInstances[0].makeSaveNameSafe(savepath+"RelaxationTime_" +savename+".png"), dpi=300)
+    
+    if show:
+        plt.show()
+    else:
+        plt.close()
+        
+def plotRelaxationDistance(listOfInstances, listOfNames, savepath=None, title  = '', savename ='', show=False):
+    '''
+    Plot several relaxation times
+    '''
+    #only 6 colours implemented
+    leng = len(listOfInstances)
+    assert leng <= 10
+    c =  listOfInstances[0].coloursForMarker(n=leng)    
+    markers=['o', 'h', '<', 'd', '*', 's', '^', 'p' ]
+    fig = plt.figure(figsize=(8, 6), dpi=200,)
+    ax2 = fig.add_subplot(111)
+
+    for ii in range(len(listOfInstances)):
+        y = ( np.array(listOfInstances[ii].aveRelaxationDistance).flatten()/(listOfInstances[ii].pixelsPmm))
+        ystd = ( np.array(listOfInstances[ii].aveRelaxationDistanceSTD).flatten()/(listOfInstances[ii].pixelsPmm))
+        ax2.errorbar(listOfInstances[ii].volumFluxesList, y, yerr=ystd ,linestyle='None', marker=markers[ii], label=listOfNames[ii], color = c[ii],  markersize=6)#, label='Max Extension')
+    ax2.set_xlabel("Volumn Flux [ml/min]")
+    ax2.set_ylabel("Relaxation Distance [mm]")
+    ax2.legend(loc='best', fontsize=6) 
+
+    xmin, xmax = plt.xlim()
+#        ax2.set_xlim([xmin, xmax*1.05])
+    plt.xlim([0.9*xmin, xmax*1.05])
+    xmin, xmax = plt.xlim()
+    
+    
+    ax2.xaxis.grid(True, color='#D0D0D0')
+    ax2.yaxis.grid(True, color='#D0D0D0')
+    
+    plt.title("Relaxation Time -  " +title, y=1.01)
+#    plt.legend(loc=9, fontsize=6) 
+    
+    fig.tight_layout()
+    if savepath  != None:
+        plt.savefig(listOfInstances[0].makeSaveNameSafe(savepath+"RelaxationDistance_" +savename+".png"), dpi=300)
     
     if show:
         plt.show()

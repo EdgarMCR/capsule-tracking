@@ -8,7 +8,7 @@ Created on Mon Jul 27 15:00:53 2015
 from __future__ import absolute_import, division, print_function
 
 import sys
-import track_capsule_TJ_v0p12 as tr 
+import track_capsule_TJ as tr 
 
 
 def runTrackingScriptOnDirectory(directory, d0, pPmm, rotation, yTop, yBottom, xRight, xLeft, twoCapsules=0, OpenCV3=1):
