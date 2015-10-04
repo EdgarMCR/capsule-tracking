@@ -40,6 +40,8 @@ class ResultsClass:
         self.d12Daugther = []
         self.relaxationTime = []
         self.relaxationDistance = []
+        self.maxAccerleration=[]
+        self.minAccerleration=[]
         self.pixelsPmm=-1
         
         #read in the data
@@ -96,6 +98,9 @@ class ResultsClass:
             if len(entries) >= 17:
                 self.relaxationTime.append(float(entries[15]))
                 self.relaxationDistance.append(float(entries[16]))
+            if len(entries) >= 19:
+                self.maxAccerleration.append(float(entries[17]))
+                self.minAccerleration.append(float(entries[18]))
             indexC=indexC+1        
             
         self.volumFlux=np.array(self.volumFlux)
@@ -111,7 +116,42 @@ class ResultsClass:
         self.d12Daugther = np.array(self.d12Daugther)
         self.relaxationTime = np.array(self.relaxationTime)
         self.relaxationDistance = np.array(self.relaxationDistance)
+        self.maxAccerleration  = np.array(self.maxAccerleration)
+        self.minAccerleration  = np.array(self.minAccerleration)
 
+    def averageByQ(self, xInput):
+        '''     Average the values for each volumn flux and return average and std     '''
+        if not hasattr(self, "volumFluxesList"):
+            #get all volumn fluxes
+            self.volumFluxesList=[]
+            for VF in self.volumFlux:
+                isInList=False
+                for x in self.volumFluxesList:
+                    if VF == x:
+                        isInList=True
+                
+                if not isInList:
+                    self.volumFluxesList.append(VF)
+        
+        lenvfl=len(self.volumFluxesList)
+
+        x=np.zeros((lenvfl))
+        xSTD=np.zeros((lenvfl))
+        
+        counter=0
+        for vfl in self.volumFluxesList:
+            tempx=[]
+#            print('Counter =%d' %counter)
+            for i in range(len(self.volumFlux)):
+                if self.volumFlux[i] == vfl:
+                    tempx.append(xInput[i])
+                    
+            x[counter]=np.average(tempx)
+            xSTD[counter]=np.std(tempx, ddof=1)
+            
+            counter +=1
+            
+        return x, xSTD
                 
     def averageSpeed(self):
         #sort by volumn fluxes and then average
@@ -262,6 +302,9 @@ class ResultsClass:
         self.offsetByVF = offsetByVFt
         self.timeInTJByVF = timeInTJByVFt
         self.timeGeoInTJByVF = offsetByVFt
+
+        self.aveMaxAccerleration, self.aveMaxAccerlerationSTD =  self.averageByQ( self.maxAccerleration )
+        self.aveMinAccerleration, self.aveMinAccerlerationSTD =  self.averageByQ( self.minAccerleration )
         
         return self.volumFluxesList, self.aveSpeedMain, self.aveSpeedMainSTD, self.aveSpeedDaugther, self.aveSpeedDaugtherSTD, self.aveTimeinTJ, self.aveTimeinTJSTD
         
@@ -1206,6 +1249,42 @@ class ResultsClass:
         fig.tight_layout()
         if savepath  != None:
             plt.savefig(self.makeSaveNameSafe(savepath+"RelaxationTaD_log_" +BatchIDC+".png"), dpi=300)
+        
+        if show:
+            plt.show()
+        else:
+            plt.close()
+
+    def plotAccelerationAsInertia(self, savepath=None, BatchID  = '', BatchIDC ='', show=False):
+        assert(hasattr(self, 'maxAccerleration'))
+        c=  self.coloursForMarker()
+        
+        fig = plt.figure(figsize=(8, 6), dpi=200,)
+        ax2 = fig.add_subplot(111)
+        
+        ax2.errorbar(self.volumFluxesList, self.aveMaxAccerleration/self.pixelsPmm, yerr=self.aveMaxAccerlerationSTD/self.pixelsPmm,  linestyle='None', marker='o', color = c[0],  markersize=5, label='Max Acceleration')
+        ax2.errorbar(self.volumFluxesList, -self.aveMinAccerleration/self.pixelsPmm, yerr=self.aveMinAccerlerationSTD/self.pixelsPmm,  linestyle='None', marker='s', color = c[3],  markersize=5, label='- Min Extension')
+        ax2.set_xlabel("Volumn Flux [ml/min]")
+        ax2.set_ylabel("Acceleration [$mm/s^2$]")
+#        ax2.spines['left'].set_color(c[0])
+#        ax2.yaxis.label.set_color(c[0])        
+#        ax2.tick_params(axis='y', colors=c[0])
+
+        xmin, xmax = plt.xlim()
+#        ax2.set_xlim([xmin, xmax*1.05])
+        plt.xlim([0.9*xmin, xmax*1.05])
+        xmin, xmax = plt.xlim()
+
+        ax2.xaxis.grid(True, color='#D0D0D0')
+        ax2.yaxis.grid(True, color='#D0D0D0')
+        
+        plt.title("Acceleration Max/Min -  " +BatchID, y=1.01)
+        plt.legend(loc='best', fontsize=6) 
+        
+#        plt.legend(loc='best', fontsize=6)
+        fig.tight_layout()
+        if savepath  != None:
+            plt.savefig(self.makeSaveNameSafe(savepath+"MaxMinAcceleration_" +BatchIDC+".png"), dpi=300)
         
         if show:
             plt.show()

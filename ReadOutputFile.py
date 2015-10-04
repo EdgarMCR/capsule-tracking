@@ -1284,6 +1284,8 @@ def findSpeedGradient(path,centerline, widthChannel, pPmm, FPS=64, Index=None, U
     disp_x, disp_y, vel_x, vel_y , speed, speed_ave, imageCounter, acceleration_x, acceleration_y, acceleration_mag = findAccelerationFromPosition(centroid_x, centroid_y, FPS)
     ave_acceleration_mag=tr.runningMean(acceleration_mag, aveWindow)
     
+#    print("ave_acceleration_mag max, min = %.2f, %.2f" %(np.max(ave_acceleration_mag), np.min(ave_acceleration_mag)))
+    
     if UseEverySecond:
         #select every second entry
         speed=speed[::2]
@@ -1356,13 +1358,15 @@ def findSpeedGradient(path,centerline, widthChannel, pPmm, FPS=64, Index=None, U
         plt.plot([zx2[startIndex[0][0]], zx2[startIndex[0][0]]], [ min_dx[0], max_dx[0]],  '-r', linewidth=2)
         plt.plot([zx2[endIndex[0][-1]], zx2[endIndex[0][-1]]], [ min_dx[0], max_dx[0]],  '-r', linewidth=2)
         
-        s = "Time in T-Junction = %.2e s" %timeInTJunction
+        s = "Time in T-Junction = %.2e s " %(timeInTJunction)
         s1= "Threshold for decrease = %.2f" % (startThres)
         s2= "Threshold for increase = %.2f" % (endThres)
+        s3="max and min acc = %.2f, %.2f" %((min_dx[0])/(pPmm), (max_dx[0])/(pPmm))
         
         ax.text(l_dx/2.2, min_dx[0]/2, s, fontsize=15)
         ax.text(l_dx/2.2, min_dx[0]/1.4, s1, fontsize=12)
         ax.text(l_dx/2.2, min_dx[0]/1.05, s2, fontsize=12)
+        ax.text(l_dx/2.2, min_dx[0]/0.85, s3, fontsize=8)
 #        print('min_dx = %.1f max_dx = %.1f' %(min_dx,max_dx))
         plt.ylim([min_dx[0]*1.2,max_dx[0]*1.2])
         

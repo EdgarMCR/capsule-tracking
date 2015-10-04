@@ -712,10 +712,12 @@ def find_batchName(path):
     
     return reslt
     
-def gradient(x, h=1/64):
+def gradient(x, h=1.0):
+    '''2nd order central difference'''
+    #TODO: fix so first point isn't zero and make output lenght == input length
     dx = np.zeros((len(x)-4))
     for i in range(3,len(x)-2):
-        dx[i-2] = (1/12*x[i-2]-2/3*x[i-1] + 2/3*x[i+1] - 1/12 * x[i+2])/h
+        dx[i-2] = (1/12*x[i-2]-2/3*x[i-1] + 2/3*x[i+1] - 1/12 * x[i+2])/(h+0.0)
     return dx
     
 def rotateImage(image, angle):
